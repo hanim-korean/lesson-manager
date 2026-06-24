@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>하님 수업 관리</title>
+<title>하님 수업 관리 Student tracker</title>
 <style>
   :root {
     --bg: #ffffff; --bg2: #f7f6f3; --bg3: #efede8;
@@ -259,7 +259,7 @@ function renderCalendar() {
     if (valid) {
       const today = isToday(date);
       cell.appendChild(el(`<div class="daynum ${today?'today':col===0?'sun':col===6?'sat':''}">${day}</div>`));
-      state.lessons.filter(l => l.date === date).forEach(l => {
+      state.lessons.filter(l => l.date === date).sort((a,b) => (a.time||"").localeCompare(b.time||"")).forEach(l => {
         const c = bookById(studentBook(l.student));
         const isSelP = selLessonObj && selLessonObj.id === l.id;
         const pill = el(`<div class="pill" style="background:${c.bg};color:${c.text};${isSelP?`border-color:${c.border}`:''}">${l.time?`<span class="t">${l.time}</span> `:''}${l.student}</div>`);
