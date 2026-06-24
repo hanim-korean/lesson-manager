@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>하님 수업 관리 Student tracker</title>
+<title>하님 수업 관리</title>
 <style>
   :root {
     --bg: #ffffff; --bg2: #f7f6f3; --bg3: #efede8;
@@ -20,35 +20,20 @@
     -webkit-font-smoothing: antialiased;
   }
   .app { max-width: 1100px; margin: 0 auto; padding: 16px; }
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
-  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
   .topbar h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
   .topbar h1 span { color: var(--text3); font-weight: 400; font-size: 13px; margin-left: 6px; }
   .tabs { display: flex; gap: 4px; }
-  .tab {
-    padding: 7px 14px; border: 1px solid var(--border); background: var(--bg);
-    border-radius: 99px; font-size: 13px; cursor: pointer; color: var(--text2);
-    font-family: inherit;
-  }
+  .tab { padding: 7px 14px; border: 1px solid var(--border); background: var(--bg); border-radius: 99px; font-size: 13px; cursor: pointer; color: var(--text2); font-family: inherit; }
   .tab.active { background: var(--text); color: white; border-color: var(--text); }
   .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 
-  /* Calendar */
   .cal-wrap { display: flex; gap: 14px; align-items: flex-start; }
   .cal { flex: 1; min-width: 0; }
-  .cal-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; border-bottom: 1px solid var(--border);
-  }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
   .cal-head .month { font-size: 16px; font-weight: 600; }
   .cal-head .nav { display: flex; gap: 4px; }
-  .btn {
-    padding: 5px 10px; border: 1px solid var(--border); background: var(--bg);
-    border-radius: var(--radius); font-size: 13px; cursor: pointer; color: var(--text);
-    font-family: inherit;
-  }
+  .btn { padding: 5px 10px; border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius); font-size: 13px; cursor: pointer; color: var(--text); font-family: inherit; }
   .btn:hover { background: var(--bg2); }
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: var(--accent); color: white; border-color: var(--accent); width: 100%; padding: 10px; font-weight: 500; }
@@ -58,73 +43,70 @@
   .dow div { padding: 6px 0; text-align: center; font-size: 11px; font-weight: 600; color: var(--text2); }
   .dow .sun { color: #d0021b; } .dow .sat { color: #1565c0; }
   .grid { display: grid; grid-template-columns: repeat(7,1fr); }
-  .cell {
-    min-height: 76px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    padding: 4px 3px; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
-  }
+  .cell { min-height: 76px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 4px 3px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
   .cell:nth-child(7n) { border-right: none; }
   .cell.sel { background: var(--bg2); }
-  .daynum {
-    width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; font-size: 12px; flex-shrink: 0; color: var(--text2);
-  }
+  .daynum { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; color: var(--text2); }
   .daynum.sun { color: #d0021b; } .daynum.sat { color: #1565c0; }
   .daynum.today { background: var(--accent); color: white; font-weight: 600; }
-  .pill {
-    border-radius: 3px; padding: 1px 5px; font-size: 10px; line-height: 1.4;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
-    border: 1px solid transparent;
-  }
+  .pill { border-radius: 3px; padding: 1px 5px; font-size: 10px; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
   .pill .t { opacity: 0.65; }
 
-  /* Panel */
-  .panel { width: 320px; flex-shrink: 0; }
+  .panel { width: 340px; flex-shrink: 0; }
   .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
   .panel-head .title { font-size: 14px; font-weight: 600; }
   .close { border: none; background: none; font-size: 20px; cursor: pointer; color: var(--text3); line-height: 1; }
   .panel-body { padding: 16px; }
   .field { margin-bottom: 12px; }
   .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
-  input, select, textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border2); border-radius: var(--radius);
-    font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text);
-  }
+  input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border2); border-radius: var(--radius); font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); }
   input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
   textarea { resize: vertical; }
   .chip { display: inline-flex; align-items: center; border-radius: 99px; padding: 3px 11px; font-size: 12px; font-weight: 500; }
   .meta-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 14px; }
-  .msg-box {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 12px; font-size: 13px; line-height: 1.75; white-space: pre-wrap; margin-bottom: 8px;
-  }
   .hint { text-align: center; padding: 28px 12px; color: var(--text3); font-size: 13px; }
 
-  /* Students manager */
+  /* tags */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tagbtn { padding: 4px 11px; border-radius: 99px; font-size: 12px; cursor: pointer; border: 1px solid var(--border2); background: var(--bg); color: var(--text2); font-family: inherit; }
+  .tagbtn.on { background: var(--accent); color: white; border-color: var(--accent); }
+  .tag-static { display: inline-flex; padding: 2px 9px; border-radius: 99px; font-size: 11px; background: var(--bg3); color: var(--text2); }
+
+  /* students manager */
   .stu-list { padding: 8px; }
-  .stu-row {
-    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-  }
+  .stu-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
   .stu-row:last-child { border-bottom: none; }
+  .stu-row.clickable { cursor: pointer; }
+  .stu-row.clickable:hover { background: var(--bg2); }
   .swatch { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
   .stu-name { font-weight: 500; min-width: 90px; }
   .stu-book { flex: 1; }
   .stu-book select { font-size: 12px; padding: 5px 8px; }
+  .stu-count { font-size: 11px; color: var(--text3); margin-right: 4px; }
   .add-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); align-items: flex-end; }
   .add-row .field { margin: 0; flex: 1; }
   .legend { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--border); }
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text2); }
   .legend-item .swatch { width: 12px; height: 12px; }
   .row-actions { display: flex; gap: 6px; }
-  @media (max-width: 760px) {
-    .cal-wrap { flex-direction: column; }
-    .panel { width: 100%; }
-  }
+
+  /* record cards (student detail + review) */
+  .rec { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; }
+  .rec-date { font-size: 12px; font-weight: 600; color: var(--accent-dark); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .rec-line { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+  .rec-line .ic { color: var(--text3); flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+  .rec-line .lab { font-size: 11px; color: var(--text3); display: block; }
+  .back-btn { font-size: 13px; padding: 5px 12px; margin-bottom: 14px; }
+  .filterbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .seg { display: flex; gap: 0; border: 1px solid var(--border2); border-radius: var(--radius); overflow: hidden; }
+  .seg button { border: none; background: var(--bg); padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--text2); font-family: inherit; border-right: 1px solid var(--border); }
+  .seg button:last-child { border-right: none; }
+  .seg button.on { background: var(--text); color: white; }
+  @media (max-width: 760px) { .cal-wrap { flex-direction: column; } .panel { width: 100%; } }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
-
 <script>
 const BOOKS = [
   { id: "matchm01", name: "맞춤한국어 01", bg: "#fdecec", text: "#a32d2d", border: "#f09595" },
@@ -132,37 +114,31 @@ const BOOKS = [
   { id: "sejong_intro", name: "세종학당 입문", bg: "#fbf6d9", text: "#7a6a08", border: "#d9c94a" },
   { id: "sejong01", name: "세종학당 01", bg: "#e3f3de", text: "#2f6d1a", border: "#8cc466" },
   { id: "sejong02", name: "세종학당 02", bg: "#e3eef9", text: "#15487e", border: "#7ab0e0" },
-  { id: "sejong03A", name: "세종학당 03A", bg: "#ece9fb", text: "#3f2f8c", border: "#a99ee0" },
-  { id: "sejong03B", name: "세종학당 03B", bg: "#e2e6f0", text: "#27376b", border: "#7986c0" },
-  { id: "sejong_practical01", name: "세종학당 실용 한국어 01", bg: "#eef0dd", text: "#535c1a", border: "#a3ab5f" },
+  { id: "sejong03a", name: "세종학당 03A", bg: "#ece9fb", text: "#3f2f8c", border: "#a99ee0" },
+  { id: "sejong03b", name: "세종학당 03B", bg: "#e2e6f0", text: "#27376b", border: "#7986c0" },
+  { id: "sejong_practical", name: "세종학당 실용한국어", bg: "#eef0dd", text: "#535c1a", border: "#a3ab5f" },
   { id: "none", name: "(미지정)", bg: "#f1efe8", text: "#5f5e5a", border: "#c2c0b8" },
 ];
 const bookById = (id) => BOOKS.find(b => b.id === id) || BOOKS[BOOKS.length - 1];
 
+const TAGS = ["읽기","듣기","말하기","어휘","문법","발음"];
+
 const DEFAULT_STUDENTS = [
-  { name: "Julia M.", book: "sejong01" },
-  { name: "Brandon", book: "sejong02" },
-  { name: "Chloé S.", book: "sejong02" },
-  { name: "Chloe L.", book: "none" },
-  { name: "Mbali", book: "sejong_intro" },
-  { name: "Саня Sanya", book: "none" },
-  { name: "Ilenia", book: "none" },
-  { name: "Rizz", book: "none" },
-  { name: "Orjwan", book: "matchm01" },
-  { name: "Abby", book: "none" },
-  { name: "Lia", book: "none" },
-  { name: "Natsumi", book: "none" },
-  { name: "Zee T.", book: "none" },
-  { name: "Aalia", book: "none" },
-  { name: "Maddie", book: "none" },
-  { name: "Ryan M", book: "none" },
+  { name: "Julia M", book: "sejong01" }, { name: "Brandon", book: "sejong02" },
+  { name: "Chloé S.", book: "sejong02" }, { name: "Chloe L", book: "none" },
+  { name: "Mbali", book: "sejong_intro" }, { name: "Sanya", book: "none" },
+  { name: "Ilenia", book: "none" }, { name: "Rizz", book: "none" },
+  { name: "Orjwan", book: "matchm01" }, { name: "Abby", book: "none" },
+  { name: "Lia", book: "none" }, { name: "Natsumi", book: "none" },
+  { name: "Zee T.", book: "none" }, { name: "Aalia", book: "none" },
+  { name: "Maddie", book: "none" }, { name: "Ryan M", book: "none" },
   { name: "Julia (Ela)", book: "none" },
 ];
 
 const DAYS = ["일","월","화","수","목","금","토"];
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
-const LS_KEY = "hanim_lessons_html_v1";
-const ST_KEY = "hanim_students_html_v1";
+const LS_KEY = "hanim_lessons_html_v2";
+const ST_KEY = "hanim_students_html_v2";
 
 const pad = n => String(n).padStart(2,"0");
 const toStr = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
@@ -170,6 +146,25 @@ const todayStr = () => { const n=new Date(); return toStr(n.getFullYear(),n.getM
 const isPast = s => s <= todayStr();
 const isToday = s => s === todayStr();
 const fmtDate = s => { const d=new Date(s+"T00:00:00"); return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`; };
+const fmtShort = s => { const d=new Date(s+"T00:00:00"); return `${d.getMonth()+1}/${d.getDate()}`; };
+
+// migrate from v1 if present
+function migrate() {
+  if (!localStorage.getItem(LS_KEY)) {
+    const old = localStorage.getItem("hanim_lessons_html_v1");
+    if (old) {
+      try {
+        const arr = JSON.parse(old).map(l => ({ ...l, wentWell: l.wentWell||"", hard: l.hard||"", tags: l.tags||[] }));
+        localStorage.setItem(LS_KEY, JSON.stringify(arr));
+      } catch {}
+    }
+  }
+  if (!localStorage.getItem(ST_KEY)) {
+    const old = localStorage.getItem("hanim_students_html_v1");
+    if (old) localStorage.setItem(ST_KEY, old);
+  }
+}
+migrate();
 
 let state = {
   tab: "calendar",
@@ -177,28 +172,15 @@ let state = {
   students: JSON.parse(localStorage.getItem(ST_KEY) || "null") || DEFAULT_STUDENTS,
   lessons: JSON.parse(localStorage.getItem(LS_KEY) || "[]"),
   panel: null,
-  form: { student: "", time: "", topic: "" },
-  draftNotes: "",
-  draftFeedback: "",
-  generating: false,
+  studentDetail: null,   // student name when viewing detail
+  detailMode: "all",     // all | hard
+  reviewTag: null,       // tag filter in review tab
 };
 
 const saveLessons = () => localStorage.setItem(LS_KEY, JSON.stringify(state.lessons));
 const saveStudents = () => localStorage.setItem(ST_KEY, JSON.stringify(state.students));
 const studentBook = (name) => { const s = state.students.find(x => x.name === name); return s ? s.book : "none"; };
-
-async function callClaude(prompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6", max_tokens: 600,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-  const data = await res.json();
-  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
-}
+const lessonsByStudent = (name) => state.lessons.filter(l => l.student === name).sort((a,b)=> b.date.localeCompare(a.date));
 
 function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
 
@@ -211,13 +193,14 @@ function render() {
       <div class="tabs">
         <button class="tab ${state.tab==='calendar'?'active':''}" data-tab="calendar">캘린더</button>
         <button class="tab ${state.tab==='students'?'active':''}" data-tab="students">학생 관리</button>
+        <button class="tab ${state.tab==='review'?'active':''}" data-tab="review">복습 모아보기</button>
       </div>
-    </div>
-  `));
-  app.querySelectorAll(".tab").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.panel = null; render(); });
+    </div>`));
+  app.querySelectorAll(".tab").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.panel = null; state.studentDetail = null; render(); });
 
   if (state.tab === "calendar") app.appendChild(renderCalendar());
-  else app.appendChild(renderStudents());
+  else if (state.tab === "students") app.appendChild(state.studentDetail ? renderStudentDetail() : renderStudents());
+  else app.appendChild(renderReview());
 }
 
 function renderCalendar() {
@@ -226,25 +209,13 @@ function renderCalendar() {
   const firstDay = new Date(y, m, 1).getDay();
   const dim = new Date(y, m+1, 0).getDate();
   const cells = Math.ceil((firstDay + dim) / 7) * 7;
-
   const cal = el(`<div class="card cal"></div>`);
-  const head = el(`
-    <div class="cal-head">
-      <span class="month">${y}년 ${MONTHS[m]}</span>
-      <div class="nav">
-        <button class="btn" id="today">오늘</button>
-        <button class="btn" id="prev">‹</button>
-        <button class="btn" id="next">›</button>
-      </div>
-    </div>`);
+  const head = el(`<div class="cal-head"><span class="month">${y}년 ${MONTHS[m]}</span><div class="nav"><button class="btn" id="today">오늘</button><button class="btn" id="prev">‹</button><button class="btn" id="next">›</button></div></div>`);
   cal.appendChild(head);
   head.querySelector("#today").onclick = () => { state.ym = { y:new Date().getFullYear(), m:new Date().getMonth() }; render(); };
   head.querySelector("#prev").onclick = () => { state.ym = m===0?{y:y-1,m:11}:{y,m:m-1}; render(); };
   head.querySelector("#next").onclick = () => { state.ym = m===11?{y:y+1,m:0}:{y,m:m+1}; render(); };
-
-  const dow = el(`<div class="dow">${DAYS.map((d,i)=>`<div class="${i===0?'sun':i===6?'sat':''}">${d}</div>`).join("")}</div>`);
-  cal.appendChild(dow);
-
+  cal.appendChild(el(`<div class="dow">${DAYS.map((d,i)=>`<div class="${i===0?'sun':i===6?'sat':''}">${d}</div>`).join("")}</div>`));
   const grid = el(`<div class="grid"></div>`);
   for (let i = 0; i < cells; i++) {
     const day = i - firstDay + 1;
@@ -252,14 +223,13 @@ function renderCalendar() {
     const date = valid ? toStr(y, m, day) : null;
     const col = i % 7;
     const selDate = state.panel?.type === "new" && state.panel.date === date;
-    const selLesson = state.panel?.type === "lesson";
-    const selLessonObj = selLesson ? state.lessons.find(l => l.id === state.panel.id) : null;
+    const selLessonObj = state.panel?.type === "lesson" ? state.lessons.find(l => l.id === state.panel.id) : null;
     const cellSel = selDate || (selLessonObj && selLessonObj.date === date);
     const cell = el(`<div class="cell ${cellSel?'sel':''}"></div>`);
     if (valid) {
       const today = isToday(date);
       cell.appendChild(el(`<div class="daynum ${today?'today':col===0?'sun':col===6?'sat':''}">${day}</div>`));
-      state.lessons.filter(l => l.date === date).sort((a,b) => (a.time||"").localeCompare(b.time||"")).forEach(l => {
+      state.lessons.filter(l => l.date === date).forEach(l => {
         const c = bookById(studentBook(l.student));
         const isSelP = selLessonObj && selLessonObj.id === l.id;
         const pill = el(`<div class="pill" style="background:${c.bg};color:${c.text};${isSelP?`border-color:${c.border}`:''}">${l.time?`<span class="t">${l.time}</span> `:''}${l.student}</div>`);
@@ -272,7 +242,6 @@ function renderCalendar() {
   }
   cal.appendChild(grid);
   wrap.appendChild(cal);
-
   if (state.panel) wrap.appendChild(renderPanel());
   return wrap;
 }
@@ -281,108 +250,71 @@ function renderPanel() {
   const panel = el(`<div class="card panel"></div>`);
   if (state.panel.type === "new") {
     const date = state.panel.date;
-    panel.appendChild(el(`
-      <div class="panel-head"><span class="title">${fmtDate(date)}</span><button class="close">&times;</button></div>`));
+    panel.appendChild(el(`<div class="panel-head"><span class="title">${fmtDate(date)}</span><button class="close">&times;</button></div>`));
     const body = el(`<div class="panel-body"></div>`);
     body.appendChild(el(`<div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px">수업 추가</div>`));
-    const studentSel = `<div class="field"><label>학생</label><select id="f-student">${state.students.map(s=>`<option ${s.name===state.form.student?'selected':''}>${s.name}</option>`).join("")}</select></div>`;
-    body.appendChild(el(studentSel));
-    body.appendChild(el(`<div class="field"><label>시간</label><input type="time" id="f-time" value="${state.form.time}"></div>`));
-    body.appendChild(el(`<div class="field"><label>주제 (선택)</label><input type="text" id="f-topic" placeholder="예: 피동 표현, Unit 5..." value="${state.form.topic}"></div>`));
+    body.appendChild(el(`<div class="field"><label>학생</label><select id="f-student">${state.students.map(s=>`<option>${s.name}</option>`).join("")}</select></div>`));
+    body.appendChild(el(`<div class="field"><label>시간</label><input type="time" id="f-time"></div>`));
+    body.appendChild(el(`<div class="field"><label>주제 (선택)</label><input type="text" id="f-topic" placeholder="예: 피동 표현, Unit 5..."></div>`));
     const addBtn = el(`<button class="btn btn-primary">수업 추가</button>`);
     body.appendChild(addBtn);
     panel.appendChild(body);
     panel.querySelector(".close").onclick = closePanel;
     addBtn.onclick = () => {
-      const student = body.querySelector("#f-student").value;
-      const time = body.querySelector("#f-time").value;
-      const topic = body.querySelector("#f-topic").value;
-      const nl = { id: String(Date.now()), student, date, time, topic, notes: "", feedback: "" };
-      state.lessons.push(nl); saveLessons();
-      openLesson(nl);
+      const nl = { id: String(Date.now()), student: body.querySelector("#f-student").value, date, time: body.querySelector("#f-time").value, topic: body.querySelector("#f-topic").value, wentWell: "", hard: "", tags: [], notes: "" };
+      state.lessons.push(nl); saveLessons(); openLesson(nl);
     };
   } else {
     const l = state.lessons.find(x => x.id === state.panel.id);
     if (!l) { closePanel(); return panel; }
+    if (!l.tags) l.tags = [];
     const c = bookById(studentBook(l.student));
+    const book = bookById(studentBook(l.student));
     panel.appendChild(el(`<div class="panel-head"><span class="title">${fmtDate(l.date)}</span><button class="close">&times;</button></div>`));
     const body = el(`<div class="panel-body"></div>`);
-    const book = bookById(studentBook(l.student));
-    body.appendChild(el(`
-      <div class="meta-row">
-        <span class="chip" style="background:${c.bg};color:${c.text}">${l.student}</span>
-        ${l.time?`<span style="font-size:12px;color:var(--text2)">${l.time}</span>`:''}
-        <span style="font-size:11px;color:var(--text3)">${book.name}${l.topic?` · ${l.topic}`:''}</span>
-      </div>`));
+    body.appendChild(el(`<div class="meta-row"><span class="chip" style="background:${c.bg};color:${c.text}">${l.student}</span>${l.time?`<span style="font-size:12px;color:var(--text2)">${l.time}</span>`:''}<span style="font-size:11px;color:var(--text3)">${book.name}${l.topic?` · ${l.topic}`:''}</span></div>`));
 
     if (isPast(l.date)) {
-      body.appendChild(el(`<div class="field"><label>수업 메모</label><textarea id="notes" rows="3" placeholder="오늘 뭐 했는지, 잘 한 것, 어려웠던 것...">${l.notes||""}</textarea></div>`));
-      const btnRow = el(`<div style="display:flex;gap:6px;margin-bottom:14px"></div>`);
-      const genBtn = el(`<button class="btn" style="flex:1;font-weight:500">${state.generating?'생성 중...':'피드백 + 한마디 생성'}</button>`);
-      const saveBtn = el(`<button class="btn">저장</button>`);
-      btnRow.appendChild(genBtn); btnRow.appendChild(saveBtn);
-      body.appendChild(btnRow);
+      body.appendChild(el(`<div class="field"><label>잘한 점</label><textarea id="well" rows="2" placeholder="오늘 잘한 것...">${l.wentWell||""}</textarea></div>`));
+      body.appendChild(el(`<div class="field"><label>어려워한 점</label><textarea id="hard" rows="2" placeholder="어려워한 것... (복습 모아보기에 쌓여요)">${l.hard||""}</textarea></div>`));
+      const tagField = el(`<div class="field"><label>태그 (여러 개 선택 가능)</label></div>`);
+      const tagRow = el(`<div class="tag-row"></div>`);
+      TAGS.forEach(t => {
+        const on = l.tags.includes(t);
+        const tb = el(`<button class="tagbtn ${on?'on':''}">${t}</button>`);
+        tb.onclick = () => { if (l.tags.includes(t)) l.tags = l.tags.filter(x=>x!==t); else l.tags.push(t); tb.classList.toggle("on"); };
+        tagRow.appendChild(tb);
+      });
+      tagField.appendChild(tagRow);
+      body.appendChild(tagField);
 
-      const msgHost = el(`<div id="msg-host"></div>`);
-      body.appendChild(msgHost);
-      if (l.feedback) msgHost.appendChild(buildMsgBox(l.feedback));
-
-      saveBtn.onclick = () => { l.notes = body.querySelector("#notes").value; saveLessons(); saveBtn.textContent = "저장됨"; setTimeout(()=>saveBtn.textContent="저장",1500); };
-      genBtn.onclick = async () => {
-        if (state.generating) return;
-        l.notes = body.querySelector("#notes").value; saveLessons();
-        state.generating = true; genBtn.textContent = "생성 중..."; genBtn.disabled = true;
-        const prompt = `You are helping Korean language tutor Hanim write a short post-lesson message to send to student "${l.student}" on Preply.
-
-Lesson details:
-- Date: ${fmtDate(l.date)}
-- Textbook: ${book.name}
-- Topic: ${l.topic || "(not specified)"}
-- Tutor's notes: ${l.notes || "(none)"}
-
-Write a warm, brief bilingual message (Korean + English together). Use exactly this format:
-
-[피드백 / Feedback]
-(1-2 sentences in Korean about today's lesson — specific, warm)
-(Same in English)
-
-[오늘의 한마디 / Keep it up!]
-(1 short motivational line in Korean)
-(Same in English)
-
-Be genuine and specific to the notes. No generic phrases. Output ONLY the message.`;
-        try {
-          const text = await callClaude(prompt);
-          l.feedback = text; saveLessons();
-          msgHost.innerHTML = ""; msgHost.appendChild(buildMsgBox(text));
-        } catch(e) {
-          msgHost.innerHTML = `<div class="hint">오류가 발생했어요. 다시 시도해주세요.</div>`;
-        }
-        state.generating = false; genBtn.textContent = "피드백 + 한마디 생성"; genBtn.disabled = false;
-      };
+      const saveBtn = el(`<button class="btn btn-primary" style="margin-top:4px">저장</button>`);
+      saveBtn.onclick = () => { l.wentWell = body.querySelector("#well").value; l.hard = body.querySelector("#hard").value; saveLessons(); saveBtn.textContent = "저장됐어요!"; setTimeout(()=>saveBtn.textContent="저장",1500); };
+      body.appendChild(saveBtn);
     } else {
-      body.appendChild(el(`<div class="hint">수업 당일이 되면 메모와 피드백을 작성할 수 있어요</div>`));
+      body.appendChild(el(`<div class="hint">수업 당일이 되면 기록을 작성할 수 있어요</div>`));
     }
-
     const del = el(`<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)"><button class="btn btn-danger">수업 삭제</button></div>`);
     del.querySelector("button").onclick = () => { state.lessons = state.lessons.filter(x => x.id !== l.id); saveLessons(); closePanel(); };
     body.appendChild(del);
-
     panel.appendChild(body);
     panel.querySelector(".close").onclick = closePanel;
   }
   return panel;
 }
 
-function buildMsgBox(text) {
-  const wrap = el(`<div></div>`);
-  wrap.appendChild(el(`<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">Preply 메시지</div>`));
-  const box = el(`<div class="msg-box"></div>`); box.textContent = text;
-  wrap.appendChild(box);
-  const copy = el(`<button class="btn" style="font-size:12px">복사하기</button>`);
-  copy.onclick = () => { navigator.clipboard.writeText(text); copy.textContent = "복사됐어요!"; setTimeout(()=>copy.textContent="복사하기",1800); };
-  wrap.appendChild(copy);
-  return wrap;
+function tagsHtml(tags) { return (tags&&tags.length)? `<div class="tag-row" style="margin-top:6px">${tags.map(t=>`<span class="tag-static">${t}</span>`).join("")}</div>` : ""; }
+
+function recCard(l, showStudent) {
+  const c = bookById(studentBook(l.student));
+  const rec = el(`<div class="rec" style="border-left-color:${c.border}"></div>`);
+  rec.appendChild(el(`<div class="rec-date"><span>${fmtDate(l.date)}${l.time?` · ${l.time}`:''}</span>${showStudent?`<span class="chip" style="background:${c.bg};color:${c.text}">${l.student}</span>`:''}</div>`));
+  if (l.topic) rec.appendChild(el(`<div class="rec-line"><span style="font-size:12px;color:var(--text2)">📖 ${l.topic}</span></div>`));
+  if (l.wentWell) rec.appendChild(el(`<div class="rec-line"><span class="ic">＋</span><div><span class="lab">잘한 점</span>${l.wentWell}</div></div>`));
+  if (l.hard) rec.appendChild(el(`<div class="rec-line"><span class="ic">△</span><div><span class="lab">어려워한 점</span>${l.hard}</div></div>`));
+  const th = tagsHtml(l.tags);
+  if (th) rec.appendChild(el(th));
+  return rec;
 }
 
 function renderStudents() {
@@ -390,27 +322,23 @@ function renderStudents() {
   const list = el(`<div class="stu-list"></div>`);
   state.students.forEach((s, idx) => {
     const c = bookById(s.book);
+    const count = state.lessons.filter(l => l.student === s.name).length;
     const row = el(`<div class="stu-row"></div>`);
     row.appendChild(el(`<div class="swatch" style="background:${c.bg};border:1.5px solid ${c.border}"></div>`));
-    row.appendChild(el(`<div class="stu-name">${s.name}</div>`));
+    const nameEl = el(`<div class="stu-name clickable-name" style="cursor:pointer">${s.name}</div>`);
+    nameEl.onclick = () => { state.studentDetail = s.name; state.detailMode = "all"; render(); };
+    row.appendChild(nameEl);
+    if (count>0) row.appendChild(el(`<span class="stu-count">${count}회</span>`));
     const bookCell = el(`<div class="stu-book"><select>${BOOKS.map(b=>`<option value="${b.id}" ${b.id===s.book?'selected':''}>${b.name}</option>`).join("")}</select></div>`);
     bookCell.querySelector("select").onchange = (e) => { state.students[idx].book = e.target.value; saveStudents(); render(); };
     row.appendChild(bookCell);
     const del = el(`<div class="row-actions"><button class="btn btn-danger">삭제</button></div>`);
-    del.querySelector("button").onclick = () => {
-      if (confirm(`${s.name} 학생을 삭제할까요? (수업 기록은 유지됩니다)`)) { state.students.splice(idx,1); saveStudents(); render(); }
-    };
+    del.querySelector("button").onclick = () => { if (confirm(`${s.name} 학생을 삭제할까요? (수업 기록은 유지됩니다)`)) { state.students.splice(idx,1); saveStudents(); render(); } };
     row.appendChild(del);
     list.appendChild(row);
   });
   card.appendChild(list);
-
-  const addRow = el(`
-    <div class="add-row">
-      <div class="field"><label>새 학생 이름</label><input type="text" id="new-name" placeholder="이름 입력"></div>
-      <div class="field"><label>교재</label><select id="new-book">${BOOKS.map(b=>`<option value="${b.id}">${b.name}</option>`).join("")}</select></div>
-      <button class="btn btn-primary" style="width:auto;flex:0 0 auto" id="add-stu">추가</button>
-    </div>`);
+  const addRow = el(`<div class="add-row"><div class="field"><label>새 학생 이름</label><input type="text" id="new-name" placeholder="이름 입력"></div><div class="field"><label>교재</label><select id="new-book">${BOOKS.map(b=>`<option value="${b.id}">${b.name}</option>`).join("")}</select></div><button class="btn btn-primary" style="width:auto;flex:0 0 auto" id="add-stu">추가</button></div>`);
   addRow.querySelector("#add-stu").onclick = () => {
     const name = addRow.querySelector("#new-name").value.trim();
     const book = addRow.querySelector("#new-book").value;
@@ -419,17 +347,71 @@ function renderStudents() {
     state.students.push({ name, book }); saveStudents(); render();
   };
   card.appendChild(addRow);
-
-  const legend = el(`<div class="legend">${BOOKS.map(b=>`<div class="legend-item"><span class="swatch" style="background:${b.bg};border:1.5px solid ${b.border}"></span>${b.name}</div>`).join("")}</div>`);
-  card.appendChild(legend);
+  card.appendChild(el(`<div class="legend">${BOOKS.map(b=>`<div class="legend-item"><span class="swatch" style="background:${b.bg};border:1.5px solid ${b.border}"></span>${b.name}</div>`).join("")}</div>`));
+  card.appendChild(el(`<div style="padding:0 16px 14px;font-size:12px;color:var(--text3)">학생 이름을 클릭하면 그동안의 수업 기록을 볼 수 있어요</div>`));
   return card;
 }
 
-function openNew(date) {
-  state.form = { student: state.students[0]?.name || "", time: "", topic: "" };
-  state.panel = { type: "new", date };
-  render();
+function renderStudentDetail() {
+  const name = state.studentDetail;
+  const c = bookById(studentBook(name));
+  const all = lessonsByStudent(name).filter(l => isPast(l.date));
+  const card = el(`<div class="card"></div>`);
+  const body = el(`<div style="padding:16px"></div>`);
+  const back = el(`<button class="btn back-btn">← 학생 목록</button>`);
+  back.onclick = () => { state.studentDetail = null; render(); };
+  body.appendChild(back);
+  body.appendChild(el(`<div class="meta-row"><span class="chip" style="background:${c.bg};color:${c.text};font-size:14px;padding:4px 14px">${name}</span><span style="font-size:12px;color:var(--text3)">${bookById(studentBook(name)).name} · 총 ${all.length}회 기록</span></div>`));
+
+  const seg = el(`<div class="seg" style="margin-bottom:14px"><button class="${state.detailMode==='all'?'on':''}" data-m="all">전체 기록</button><button class="${state.detailMode==='hard'?'on':''}" data-m="hard">어려워한 점만</button></div>`);
+  seg.querySelectorAll("button").forEach(b => b.onclick = () => { state.detailMode = b.dataset.m; render(); });
+  body.appendChild(seg);
+
+  if (all.length === 0) {
+    body.appendChild(el(`<div class="hint">아직 기록이 없어요</div>`));
+  } else if (state.detailMode === "hard") {
+    const hards = all.filter(l => l.hard && l.hard.trim());
+    if (hards.length === 0) body.appendChild(el(`<div class="hint">기록된 "어려워한 점"이 없어요</div>`));
+    else hards.forEach(l => {
+      const rec = el(`<div class="rec" style="border-left-color:${bookById(studentBook(name)).border}"></div>`);
+      rec.appendChild(el(`<div class="rec-date"><span>${fmtDate(l.date)}</span></div>`));
+      rec.appendChild(el(`<div class="rec-line"><div>${l.hard}</div></div>`));
+      const th = tagsHtml(l.tags); if (th) rec.appendChild(el(th));
+      body.appendChild(rec);
+    });
+  } else {
+    all.forEach(l => body.appendChild(recCard(l, false)));
+  }
+  card.appendChild(body);
+  return card;
 }
+
+function renderReview() {
+  const card = el(`<div class="card"></div>`);
+  const filter = el(`<div class="filterbar"><span style="font-size:12px;font-weight:600;color:var(--text2)">태그 필터:</span></div>`);
+  const allBtn = el(`<button class="tagbtn ${state.reviewTag===null?'on':''}">전체</button>`);
+  allBtn.onclick = () => { state.reviewTag = null; render(); };
+  filter.appendChild(allBtn);
+  TAGS.forEach(t => {
+    const tb = el(`<button class="tagbtn ${state.reviewTag===t?'on':''}">${t}</button>`);
+    tb.onclick = () => { state.reviewTag = t; render(); };
+    filter.appendChild(tb);
+  });
+  card.appendChild(filter);
+
+  const body = el(`<div style="padding:16px"></div>`);
+  let recs = state.lessons.filter(l => isPast(l.date) && l.hard && l.hard.trim());
+  if (state.reviewTag) recs = recs.filter(l => (l.tags||[]).includes(state.reviewTag));
+  recs.sort((a,b) => b.date.localeCompare(a.date));
+
+  body.appendChild(el(`<div style="font-size:13px;color:var(--text2);margin-bottom:12px">${state.reviewTag?`"${state.reviewTag}" 태그가 달린 `:""}어려워한 점 모아보기 — 전체 학생 (${recs.length}건)</div>`));
+  if (recs.length === 0) body.appendChild(el(`<div class="hint">해당하는 기록이 없어요</div>`));
+  else recs.forEach(l => body.appendChild(recCard(l, true)));
+  card.appendChild(body);
+  return card;
+}
+
+function openNew(date) { state.panel = { type: "new", date }; render(); }
 function openLesson(l) { state.panel = { type: "lesson", id: l.id }; render(); }
 function closePanel() { state.panel = null; render(); }
 
