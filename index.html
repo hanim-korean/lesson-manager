@@ -82,6 +82,8 @@
   .stu-name { font-weight: 500; min-width: 90px; }
   .stu-book { flex: 1; }
   .stu-book select { font-size: 12px; padding: 5px 8px; }
+  .stu-unit { width: 80px; flex-shrink: 0; }
+  .stu-unit input { font-size: 12px; padding: 5px 8px; text-align: center; }
   .stu-count { font-size: 11px; color: var(--text3); margin-right: 4px; }
   .add-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); align-items: flex-end; }
   .add-row .field { margin: 0; flex: 1; }
@@ -102,53 +104,218 @@
   .seg button { border: none; background: var(--bg); padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--text2); font-family: inherit; border-right: 1px solid var(--border); }
   .seg button:last-child { border-right: none; }
   .seg button.on { background: var(--text); color: white; }
-  @media (max-width: 760px) { .cal-wrap { flex-direction: column; } .panel { width: 100%; } }
+
+  /* 추천 자료 섹션 */
+  .rec-section { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .rec-section-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+  .rec-section-head .sec-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .rec-section-head .sec-badge { font-size: 11px; color: var(--text3); }
+  .rec-section-body { padding: 10px 14px; }
+  .rec-res-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .rec-res-row:last-child { border-bottom: none; }
+  .rec-res-name { font-size: 13px; flex: 1; min-width: 0; }
+  .rec-res-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .rec-res-tag { font-size: 10px; padding: 1px 7px; border-radius: 99px; background: var(--bg3); color: var(--text2); }
+  .notion-badge { font-size: 10px; padding: 1px 7px; border-radius: 99px; background: #f0f0f0; color: #555; border: 1px solid #ddd; }
+
+  @media (max-width: 760px) { .cal-wrap { flex-direction: column; } .panel { width: 100%; } .stu-unit { width: 60px; } }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
 <script>
+// ─── 교재 목록 (노션 DB 기준 전체) ───────────────────────────────────────────
 const BOOKS = [
+  // 맞춤한국어
   { id: "matchm01", name: "맞춤한국어 01", bg: "#fdecec", text: "#a32d2d", border: "#f09595" },
   { id: "matchm02", name: "맞춤한국어 02", bg: "#fae8d6", text: "#9a5b0a", border: "#efab4f" },
+  { id: "matchm03", name: "맞춤한국어 03", bg: "#fde8d0", text: "#8a4a00", border: "#e8a060" },
+  // 세종학당
   { id: "sejong_intro", name: "세종학당 입문", bg: "#fbf6d9", text: "#7a6a08", border: "#d9c94a" },
-  { id: "sejong01", name: "세종학당 01", bg: "#e3f3de", text: "#2f6d1a", border: "#8cc466" },
-  { id: "sejong02", name: "세종학당 02", bg: "#e3eef9", text: "#15487e", border: "#7ab0e0" },
-  { id: "sejong03a", name: "세종학당 03A", bg: "#ece9fb", text: "#3f2f8c", border: "#a99ee0" },
-  { id: "sejong03b", name: "세종학당 03B", bg: "#e2e6f0", text: "#27376b", border: "#7986c0" },
-  { id: "sejong_practical", name: "세종학당 실용한국어", bg: "#eef0dd", text: "#535c1a", border: "#a3ab5f" },
-  { id: "none", name: "(미지정)", bg: "#f1efe8", text: "#5f5e5a", border: "#c2c0b8" },
+  { id: "sejong01",    name: "세종학당 01",  bg: "#e3f3de", text: "#2f6d1a", border: "#8cc466" },
+  { id: "sejong02",    name: "세종학당 02",  bg: "#e3eef9", text: "#15487e", border: "#7ab0e0" },
+  { id: "sejong03a",   name: "세종학당 03A", bg: "#ece9fb", text: "#3f2f8c", border: "#a99ee0" },
+  { id: "sejong03b",   name: "세종학당 03B", bg: "#e2e6f0", text: "#27376b", border: "#7986c0" },
+  { id: "sejong04a",   name: "세종학당 04A", bg: "#e8f0fd", text: "#1a3a7e", border: "#6090d8" },
+  { id: "sejong04b",   name: "세종학당 04B", bg: "#dde8f8", text: "#1a3060", border: "#5080c0" },
+  { id: "sejong05a",   name: "세종학당 05A", bg: "#e0f0f8", text: "#0a4a6a", border: "#50a0c8" },
+  { id: "sejong06a",   name: "세종학당 06A", bg: "#d8ecf8", text: "#083858", border: "#4090b8" },
+  { id: "sejong_practical", name: "세종실용한국어", bg: "#eef0dd", text: "#535c1a", border: "#a3ab5f" },
+  // 서울대
+  { id: "seoul01", name: "서울대 한국어 01", bg: "#fce8e8", text: "#8b1a1a", border: "#e08080" },
+  // TTMIK
+  { id: "ttmik02", name: "TTMIK 02", bg: "#fff0e0", text: "#7a4a00", border: "#e8a840" },
+  { id: "ttmik04", name: "TTMIK 04", bg: "#ffecd0", text: "#6a3800", border: "#d89030" },
+  { id: "ttmik10", name: "TTMIK 10", bg: "#ffe8c0", text: "#5a2800", border: "#c87820" },
+  // 기타
+  { id: "travel", name: "여행한국어",  bg: "#e8f8e8", text: "#1a5a1a", border: "#60b060" },
+  { id: "none",   name: "(미지정)",   bg: "#f1efe8", text: "#5f5e5a", border: "#c2c0b8" },
 ];
 const bookById = (id) => BOOKS.find(b => b.id === id) || BOOKS[BOOKS.length - 1];
 
+// ─── 수업 태그 ────────────────────────────────────────────────────────────────
 const TAGS = ["읽기","듣기","말하기","어휘","문법","발음"];
 
-const DEFAULT_STUDENTS = [
-  { name: "Julia M", book: "sejong01" }, { name: "Brandon", book: "sejong02" },
-  { name: "Chloé S.", book: "sejong02" }, { name: "Chloe L", book: "none" },
-  { name: "Mbali", book: "sejong_intro" }, { name: "Sanya", book: "none" },
-  { name: "Ilenia", book: "none" }, { name: "Rizz", book: "none" },
-  { name: "Orjwan", book: "matchm01" }, { name: "Abby", book: "none" },
-  { name: "Lia", book: "none" }, { name: "Natsumi", book: "none" },
-  { name: "Zee T.", book: "none" }, { name: "Aalia", book: "none" },
-  { name: "Maddie", book: "none" }, { name: "Ryan M", book: "none" },
-  { name: "Julia (Ela)", book: "none" },
+// ─── 자료 라이브러리 ──────────────────────────────────────────────────────────
+const RES_BASE = "https://hanim-korean.github.io/korean-lessons/";
+const RES_TAGS = ["발음","문법","어휘","숫자","게임","문화","학생전용"];
+const RESOURCES = [
+  { file: "pronunciation_tips/index.html", name: "발음 팁", tags: ["발음"] },
+  { file: "kr_16_pronunciation_guide.html", name: "16가지 발음규칙 가이드", tags: ["발음"] },
+  { file: "한국어_발음규칙_16가지_가이드.html", name: "한국어 발음규칙 16가지", tags: ["발음"] },
+  { file: "kr_ㄹguide.html", name: "ㄹ 발음 가이드", tags: ["발음"] },
+  { file: "double_final_consonants.html", name: "겹받침", tags: ["발음"] },
+  { file: "kr_double_final_consonants.html", name: "겹받침 (2)", tags: ["발음"] },
+  { file: "Chloe_과거형_가이드.html", name: "과거형 가이드 (Chloe)", tags: ["문법","학생전용"] },
+  { file: "past_tense.html", name: "과거형", tags: ["문법"] },
+  { file: "past_tense_complet.html", name: "과거형 (완성본)", tags: ["문법"] },
+  { file: "verb_conjugation.html", name: "동사 활용", tags: ["문법"] },
+  { file: "korean_word_order_sov.html", name: "어순 (SOV)", tags: ["문법"] },
+  { file: "korean_honorifics_guide.html", name: "높임말 가이드", tags: ["문법"] },
+  { file: "kr_marker_guide.html", name: "조사 마커 가이드", tags: ["문법"] },
+  { file: "korean_colors_flashcards_quiz.html", name: "색깔 플래시카드 퀴즈", tags: ["어휘","게임"] },
+  { file: "world_map_korean.html", name: "세계지도 한국어", tags: ["어휘"] },
+  { file: "Julia_bibimbap.html", name: "비빔밥 (Julia)", tags: ["어휘","학생전용"] },
+  { file: "julia_lesson7_ohmykimchi.html", name: "오마이김치 7과 (Julia)", tags: ["어휘","학생전용"] },
+  { file: "Korean-Numbers-Flashcards2.html", name: "숫자 플래시카드", tags: ["숫자","게임"] },
+  { file: "numbers/Korean-Number-System.html", name: "한국어 숫자 체계", tags: ["숫자"] },
+  { file: "numbers/Korean-Numbers-Flashcards.html", name: "숫자 플래시카드 (2)", tags: ["숫자","게임"] },
+  { file: "numbers/Korean-Numbers-Flashcards2.html", name: "숫자 플래시카드 (3)", tags: ["숫자","게임"] },
+  { file: "Abby_bingo.html", name: "빙고 (Abby)", tags: ["게임","학생전용"] },
+  { file: "julia_game2_whats_missing.html", name: "게임: 뭐가 없어졌지 (Julia)", tags: ["게임","학생전용"] },
+  { file: "julia_game3_vowel_song_hunt_1.html", name: "게임: 모음 노래 찾기 (Julia)", tags: ["게임","학생전용"] },
+  { file: "julia_krfood/julia_game1_picture_reveal.html", name: "게임: 그림 공개 (Julia)", tags: ["게임","학생전용"] },
+  { file: "kids_korean_lesson_generator.html", name: "아이 수업 생성기", tags: ["게임"] },
+  { file: "kr_trendings.html", name: "요즘 트렌드 표현", tags: ["문화"] },
+  { file: "seoul-real-korean-guide.html", name: "서울 리얼 한국어 가이드", tags: ["문화"] },
+  { file: "four_gates.html", name: "사대문", tags: ["문화"] },
+  { file: "kr_vote_system.html", name: "투표 시스템", tags: ["문화"] },
+  { file: "Anna_6.html", name: "6과 (Anna)", tags: ["학생전용"] },
+  { file: "Julia_6.html", name: "6과 (Julia)", tags: ["학생전용"] },
+  { file: "Julia_6_A_v3.html", name: "6과 A v3 (Julia)", tags: ["학생전용"] },
+  { file: "Julia_6_B_v3.html", name: "6과 B v3 (Julia)", tags: ["학생전용"] },
+  { file: "Julia_html/index.html", name: "Julia 모음 (index)", tags: ["학생전용"] },
+  { file: "Julia_html/julia_lesson5_slides.html", name: "5과 슬라이드 (Julia)", tags: ["학생전용"] },
+  { file: "Julia_html/pororo_flashcards_v5.html", name: "뽀로로 플래시카드 (Julia)", tags: ["학생전용","게임"] },
+  { file: "Julia_html/skz_vowel_lesson_codepen_bundle.html", name: "스키즈 모음 수업 (Julia)", tags: ["학생전용"] },
+  { file: "maddie_index.html", name: "Maddie 모음 (index)", tags: ["학생전용"] },
+  { file: "maddie_맞춤한국어_6과.html", name: "맞춤한국어 6과 (Maddie)", tags: ["학생전용"] },
+  { file: "maelys_index.html", name: "Maelys 모음 (index)", tags: ["학생전용"] },
+  { file: "maelys_정규수업4_맞춤한국어1_11과.html", name: "맞춤한국어 11과 (Maelys)", tags: ["학생전용"] },
+  { file: "Sejong02-03.html", name: "세종 02-03", tags: ["학생전용"] },
+  { file: "Sejong_korean2_02.html", name: "세종 한국어2 02과", tags: ["학생전용"] },
+  { file: "sejong4a_le1.html", name: "세종 4A 1과", tags: ["학생전용"] },
+];
+const RES_KEY = "hanim_res_tags_v1";
+const GH_API = "https://api.github.com/repos/hanim-korean/korean-lessons/git/trees/main?recursive=1";
+
+// ─── 노션 한국어 문법 공통 자료 ───────────────────────────────────────────────
+// 노션 "한국어 문법" 페이지 내 하위 페이지 목록 (모든 학생에게 공통 추천)
+const NOTION_GRAMMAR = [
+  { name: "한국어 자음 발음 팁",              url: "https://app.notion.com/p/353f47e6d83d80688e06daa53d11dec9", tags: ["발음"] },
+  { name: "모음 발음 팁",                    url: "https://app.notion.com/p/35cf47e6d83d80c981c7cc0ac413d908", tags: ["발음"] },
+  { name: "겹받침 발음 (읊다/읽다/닭)",       url: "https://app.notion.com/p/363f47e6d83d804ea1c0ce7bcbfc3fad", tags: ["발음"] },
+  { name: "한국어 용언 (동사·형용사)",         url: "https://app.notion.com/p/348f47e6d83d80389b7ed87a4677ffec", tags: ["문법"] },
+  { name: "편의점 한국어",                    url: "https://app.notion.com/p/34bf47e6d83d8080a5e9c57e3cb74866", tags: ["어휘","문화"] },
+  { name: "쇼핑 (Shopping)",                 url: "https://app.notion.com/p/34bf47e6d83d80bd940bd987d4907834", tags: ["어휘","문화"] },
+  { name: "Korean Number System",            url: "https://app.notion.com/p/34af47e6d83d808b8018e0a7de813ad7", tags: ["숫자"] },
+  { name: "한국어 시간 표현",                 url: "https://app.notion.com/p/362f47e6d83d8044be73c90d58f70d68", tags: ["어휘","문법"] },
+  { name: "한국어 어순 (Korean Word Order)",  url: "https://app.notion.com/p/362f47e6d83d803fb767fd2493e8a8a6", tags: ["문법"] },
+  { name: "높임말/존댓말 Honorific Speech",   url: "https://app.notion.com/p/357f47e6d83d80539966cda739181374", tags: ["문법"] },
+  { name: "의성어/의태어 Onomatopoeia",       url: "https://app.notion.com/p/357f47e6d83d8024a879e385198d4fd9", tags: ["어휘"] },
 ];
 
-const DAYS = ["일","월","화","수","목","금","토"];
+// ─── 외부 웹 도구 (게임·활동 앱) ────────────────────────────────────────────────
+// 별도 URL을 가진 외부 도구 목록 — 추천 자료 섹션 및 자료 라이브러리에 표시
+// ─── 외부 웹 도구 (게임·활동 앱) ────────────────────────────────────────────────
+// 별도 URL을 가진 외부 도구 목록 — 추천 자료 섹션 및 자료 라이브러리에 표시
+const EXTERNAL_TOOLS = [
+  { 
+    name: "한국어 밸런스 게임", 
+    url: "https://korbalance-ndzmya2t.manus.space/", 
+    tags: ["게임"], 
+    desc: "두 가지 선택지 중 하나를 고르고 한국어로 이유 말하기" 
+  },
+  { 
+    name: "갈틱폰 (그림 이어 그리기 )", 
+    url: "https://garticphone.com/ko", 
+    tags: ["게임", "말하기"], 
+    desc: "문장을 그림으로, 그림을 문장으로 설명하며 재미있게 복습하기" 
+  },
+  { 
+    name: "워드월 (수업용 룰렛·퀴즈 )", 
+    url: "https://wordwall.net/ko", 
+    tags: ["게임", "어휘"], 
+    desc: "랜덤 질문이나 단어 퀴즈로 수업의 활력을 높이기" 
+  },
+  { 
+    name: "구글 로드뷰 (한국 거리 탐험 )", 
+    url: "https://www.google.com/maps", 
+    tags: ["문화", "읽기"], 
+    desc: "실제 한국 거리의 간판을 읽거나 장소를 찾는 실전 미션" 
+  }
+];
+
+
+// ─── 교재별 추천 자료 태그 매핑 ───────────────────────────────────────────────
+// 해당 교재를 배우는 학생에게 자동으로 필터링할 RES_TAGS 목록
+const BOOK_RES_TAGS = {
+  matchm01:         ["발음","문법","어휘"],
+  matchm02:         ["발음","문법","어휘"],
+  matchm03:         ["문법","어휘","문화"],
+  sejong_intro:     ["발음","어휘","숫자"],
+  sejong01:         ["발음","문법","어휘","숫자"],
+  sejong02:         ["문법","어휘","숫자"],
+  sejong03a:        ["문법","어휘","문화"],
+  sejong03b:        ["문법","어휘","문화"],
+  sejong04a:        ["문법","어휘","문화"],
+  sejong04b:        ["문법","어휘","문화"],
+  sejong05a:        ["문법","어휘","문화"],
+  sejong06a:        ["문법","어휘","문화"],
+  sejong_practical: ["어휘","문화"],
+  seoul01:          ["발음","문법","어휘","숫자"],
+  ttmik02:          ["문법","어휘"],
+  ttmik04:          ["문법","어휘","문화"],
+  ttmik10:          ["문법","어휘","문화"],
+  travel:           ["어휘","문화"],
+  none:             [],
+};
+
+// ─── 기본 학생 목록 ───────────────────────────────────────────────────────────
+const DEFAULT_STUDENTS = [
+  { name: "Julia M",      book: "sejong01",  unit: "" },
+  { name: "Brandon",      book: "sejong02",  unit: "" },
+  { name: "Chloé S.",     book: "sejong02",  unit: "" },
+  { name: "Chloe L",      book: "none",      unit: "" },
+  { name: "Mbali",        book: "sejong_intro", unit: "" },
+  { name: "Sanya",        book: "none",      unit: "" },
+  { name: "Ilenia",       book: "none",      unit: "" },
+  { name: "Rizz",         book: "none",      unit: "" },
+  { name: "Orjwan",       book: "matchm01",  unit: "" },
+  { name: "Abby",         book: "none",      unit: "" },
+  { name: "Lia",          book: "none",      unit: "" },
+  { name: "Natsumi",      book: "none",      unit: "" },
+  { name: "Zee T.",       book: "none",      unit: "" },
+  { name: "Aalia",        book: "none",      unit: "" },
+  { name: "Maddie",       book: "matchm02",  unit: "" },
+  { name: "Ryan M",       book: "none",      unit: "" },
+  { name: "Julia (Ela)",  book: "none",      unit: "" },
+];
+
+const DAYS   = ["일","월","화","수","목","금","토"];
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
 const LS_KEY = "hanim_lessons_html_v2";
 const ST_KEY = "hanim_students_html_v2";
 
-const pad = n => String(n).padStart(2,"0");
-const toStr = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const pad     = n => String(n).padStart(2,"0");
+const toStr   = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
 const todayStr = () => { const n=new Date(); return toStr(n.getFullYear(),n.getMonth(),n.getDate()); };
-const isPast = s => s <= todayStr();
+const isPast  = s => s <= todayStr();
 const isToday = s => s === todayStr();
 const fmtDate = s => { const d=new Date(s+"T00:00:00"); return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`; };
 const fmtShort = s => { const d=new Date(s+"T00:00:00"); return `${d.getMonth()+1}/${d.getDate()}`; };
 
-// migrate from v1 if present
+// ─── 마이그레이션 ─────────────────────────────────────────────────────────────
 function migrate() {
   if (!localStorage.getItem(LS_KEY)) {
     const old = localStorage.getItem("hanim_lessons_html_v1");
@@ -166,24 +333,62 @@ function migrate() {
 }
 migrate();
 
+// ─── 상태 ─────────────────────────────────────────────────────────────────────
 let state = {
   tab: "calendar",
   ym: { y: new Date().getFullYear(), m: new Date().getMonth() },
-  students: JSON.parse(localStorage.getItem(ST_KEY) || "null") || DEFAULT_STUDENTS,
+  // 기존 학생 데이터에 unit 필드가 없을 경우 ""로 보완
+  students: (JSON.parse(localStorage.getItem(ST_KEY) || "null") || DEFAULT_STUDENTS)
+              .map(s => ({ unit: "", ...s })),
   lessons: JSON.parse(localStorage.getItem(LS_KEY) || "[]"),
   panel: null,
-  studentDetail: null,   // student name when viewing detail
-  detailMode: "all",     // all | hard
-  reviewTag: null,       // tag filter in review tab
+  studentDetail: null,
+  detailMode: "all",
+  reviewTag: null,
+  resFilter: null,
+  resTags: JSON.parse(localStorage.getItem(RES_KEY) || "null") || {},
+  resources: null,   // null=로딩중, false=실패(fallback), Array=성공
 };
 
-const saveLessons = () => localStorage.setItem(LS_KEY, JSON.stringify(state.lessons));
+const saveResTags  = () => localStorage.setItem(RES_KEY, JSON.stringify(state.resTags));
+const saveLessons  = () => localStorage.setItem(LS_KEY, JSON.stringify(state.lessons));
 const saveStudents = () => localStorage.setItem(ST_KEY, JSON.stringify(state.students));
+
+// localStorage 저장 태그 → fallback 하드코딩 태그 순으로 조회
+const resTagsOf = (file) => {
+  if (state.resTags[file]) return state.resTags[file];
+  const fb = RESOURCES.find(r => r.file === file);
+  return fb ? fb.tags : [];
+};
+
 const studentBook = (name) => { const s = state.students.find(x => x.name === name); return s ? s.book : "none"; };
+const studentUnit = (name) => { const s = state.students.find(x => x.name === name); return s ? (s.unit || "") : ""; };
 const lessonsByStudent = (name) => state.lessons.filter(l => l.student === name).sort((a,b)=> b.date.localeCompare(a.date));
 
+// ─── GitHub API 로드 ──────────────────────────────────────────────────────────
+async function loadResourcesFromGitHub() {
+  try {
+    const res = await fetch(GH_API);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.tree || !Array.isArray(data.tree)) throw new Error('tree 없음');
+    state.resources = data.tree
+      .filter(item => item.type === 'blob' && item.path.endsWith('.html'))
+      .map(item => ({
+        file: item.path,
+        name: item.path.split('/').pop().replace(/\.html$/i, '').replace(/[_-]/g, ' ').trim()
+      }));
+  } catch (e) {
+    console.warn('[자료 라이브러리] GitHub API 호출 실패, fallback 사용:', e.message);
+    state.resources = false;
+  }
+  if (state.tab === 'library') render();
+}
+
+// ─── 유틸 ─────────────────────────────────────────────────────────────────────
 function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
 
+// ─── 메인 렌더 ────────────────────────────────────────────────────────────────
 function render() {
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -194,15 +399,18 @@ function render() {
         <button class="tab ${state.tab==='calendar'?'active':''}" data-tab="calendar">캘린더</button>
         <button class="tab ${state.tab==='students'?'active':''}" data-tab="students">학생 관리</button>
         <button class="tab ${state.tab==='review'?'active':''}" data-tab="review">복습 모아보기</button>
+        <button class="tab ${state.tab==='library'?'active':''}" data-tab="library">자료 라이브러리</button>
       </div>
     </div>`));
-  app.querySelectorAll(".tab").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.panel = null; state.studentDetail = null; render(); });
+  app.querySelectorAll(".tab").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.panel = null; state.studentDetail = null; state.resFilter = null; render(); });
 
   if (state.tab === "calendar") app.appendChild(renderCalendar());
   else if (state.tab === "students") app.appendChild(state.studentDetail ? renderStudentDetail() : renderStudents());
-  else app.appendChild(renderReview());
+  else if (state.tab === "review") app.appendChild(renderReview());
+  else app.appendChild(renderLibrary());
 }
 
+// ─── 캘린더 ───────────────────────────────────────────────────────────────────
 function renderCalendar() {
   const wrap = el(`<div class="cal-wrap"></div>`);
   const { y, m } = state.ym;
@@ -213,8 +421,8 @@ function renderCalendar() {
   const head = el(`<div class="cal-head"><span class="month">${y}년 ${MONTHS[m]}</span><div class="nav"><button class="btn" id="today">오늘</button><button class="btn" id="prev">‹</button><button class="btn" id="next">›</button></div></div>`);
   cal.appendChild(head);
   head.querySelector("#today").onclick = () => { state.ym = { y:new Date().getFullYear(), m:new Date().getMonth() }; render(); };
-  head.querySelector("#prev").onclick = () => { state.ym = m===0?{y:y-1,m:11}:{y,m:m-1}; render(); };
-  head.querySelector("#next").onclick = () => { state.ym = m===11?{y:y+1,m:0}:{y,m:m+1}; render(); };
+  head.querySelector("#prev").onclick  = () => { state.ym = m===0?{y:y-1,m:11}:{y,m:m-1}; render(); };
+  head.querySelector("#next").onclick  = () => { state.ym = m===11?{y:y+1,m:0}:{y,m:m+1}; render(); };
   cal.appendChild(el(`<div class="dow">${DAYS.map((d,i)=>`<div class="${i===0?'sun':i===6?'sat':''}">${d}</div>`).join("")}</div>`));
   const grid = el(`<div class="grid"></div>`);
   for (let i = 0; i < cells; i++) {
@@ -246,6 +454,7 @@ function renderCalendar() {
   return wrap;
 }
 
+// ─── 수업 패널 ────────────────────────────────────────────────────────────────
 function renderPanel() {
   const panel = el(`<div class="card panel"></div>`);
   if (state.panel.type === "new") {
@@ -303,6 +512,7 @@ function renderPanel() {
   return panel;
 }
 
+// ─── 유틸 함수 ────────────────────────────────────────────────────────────────
 function tagsHtml(tags) { return (tags&&tags.length)? `<div class="tag-row" style="margin-top:6px">${tags.map(t=>`<span class="tag-static">${t}</span>`).join("")}</div>` : ""; }
 
 function recCard(l, showStudent) {
@@ -317,6 +527,7 @@ function recCard(l, showStudent) {
   return rec;
 }
 
+// ─── 학생 관리 ────────────────────────────────────────────────────────────────
 function renderStudents() {
   const card = el(`<div class="card"></div>`);
   const list = el(`<div class="stu-list"></div>`);
@@ -332,6 +543,11 @@ function renderStudents() {
     const bookCell = el(`<div class="stu-book"><select>${BOOKS.map(b=>`<option value="${b.id}" ${b.id===s.book?'selected':''}>${b.name}</option>`).join("")}</select></div>`);
     bookCell.querySelector("select").onchange = (e) => { state.students[idx].book = e.target.value; saveStudents(); render(); };
     row.appendChild(bookCell);
+    // 단원 입력 칸
+    const unitCell = el(`<div class="stu-unit"><input type="text" placeholder="단원" value="${s.unit||''}" title="현재 단원 (예: 5과, Unit 3)"></div>`);
+    const unitInput = unitCell.querySelector("input");
+    unitInput.onchange = () => { state.students[idx].unit = unitInput.value.trim(); saveStudents(); };
+    row.appendChild(unitCell);
     const del = el(`<div class="row-actions"><button class="btn btn-danger">삭제</button></div>`);
     del.querySelector("button").onclick = () => { if (confirm(`${s.name} 학생을 삭제할까요? (수업 기록은 유지됩니다)`)) { state.students.splice(idx,1); saveStudents(); render(); } };
     row.appendChild(del);
@@ -344,25 +560,117 @@ function renderStudents() {
     const book = addRow.querySelector("#new-book").value;
     if (!name) return;
     if (state.students.some(s => s.name === name)) { alert("이미 있는 학생이에요"); return; }
-    state.students.push({ name, book }); saveStudents(); render();
+    state.students.push({ name, book, unit: "" }); saveStudents(); render();
   };
   card.appendChild(addRow);
   card.appendChild(el(`<div class="legend">${BOOKS.map(b=>`<div class="legend-item"><span class="swatch" style="background:${b.bg};border:1.5px solid ${b.border}"></span>${b.name}</div>`).join("")}</div>`));
-  card.appendChild(el(`<div style="padding:0 16px 14px;font-size:12px;color:var(--text3)">학생 이름을 클릭하면 그동안의 수업 기록을 볼 수 있어요</div>`));
+  card.appendChild(el(`<div style="padding:0 16px 14px;font-size:12px;color:var(--text3)">학생 이름을 클릭하면 수업 기록과 추천 자료를 볼 수 있어요 · 단원 칸에 현재 단원을 입력하면 추천 자료에 표시됩니다</div>`));
   return card;
 }
 
+// ─── 학생 상세 (추천 자료 포함) ───────────────────────────────────────────────
 function renderStudentDetail() {
   const name = state.studentDetail;
-  const c = bookById(studentBook(name));
-  const all = lessonsByStudent(name).filter(l => isPast(l.date));
+  const stu  = state.students.find(s => s.name === name) || {};
+  const c    = bookById(studentBook(name));
+  const all  = lessonsByStudent(name).filter(l => isPast(l.date));
   const card = el(`<div class="card"></div>`);
   const body = el(`<div style="padding:16px"></div>`);
   const back = el(`<button class="btn back-btn">← 학생 목록</button>`);
   back.onclick = () => { state.studentDetail = null; render(); };
   body.appendChild(back);
-  body.appendChild(el(`<div class="meta-row"><span class="chip" style="background:${c.bg};color:${c.text};font-size:14px;padding:4px 14px">${name}</span><span style="font-size:12px;color:var(--text3)">${bookById(studentBook(name)).name} · 총 ${all.length}회 기록</span></div>`));
 
+  // 학생 헤더 (교재 + 단원)
+  const unitLabel = stu.unit ? ` · ${stu.unit}` : "";
+  body.appendChild(el(`<div class="meta-row"><span class="chip" style="background:${c.bg};color:${c.text};font-size:14px;padding:4px 14px">${name}</span><span style="font-size:12px;color:var(--text3)">${bookById(studentBook(name)).name}${unitLabel} · 총 ${all.length}회 기록</span></div>`));
+
+  // ── 추천 자료 섹션 ──────────────────────────────────────────────────────────
+  const bookId = studentBook(name);
+  const relTags = BOOK_RES_TAGS[bookId] || [];
+
+  // 1) GitHub/RESOURCES에서 관련 태그 자료 필터링
+  const baseList = Array.isArray(state.resources) ? state.resources : RESOURCES.slice();
+  const matchedRes = relTags.length > 0
+    ? baseList.filter(r => {
+        const t = resTagsOf(r.file);
+        return relTags.some(rt => t.includes(rt));
+      })
+    : [];
+
+  // 2) 노션 공통 문법 자료 (교재 무관, 항상 표시)
+  const notionRes = NOTION_GRAMMAR;
+
+  // 3) 외부 웹 도구 (게임 등, 항상 표시)
+  const extTools = EXTERNAL_TOOLS;
+
+  const totalCount = matchedRes.length + notionRes.length + extTools.length;
+  const recSection = el(`<div class="rec-section"></div>`);
+  const secHead = el(`<div class="rec-section-head"><span class="sec-title">📚 추천 자료</span><span class="sec-badge">${bookById(bookId).name}${unitLabel} · ${totalCount}개</span></div>`);
+  const secBody = el(`<div class="rec-section-body"></div>`);
+  let secOpen = true;
+  secHead.onclick = () => { secOpen = !secOpen; secBody.style.display = secOpen ? "" : "none"; secHead.querySelector(".sec-badge").textContent = (secOpen ? "" : "▶ ") + `${bookById(bookId).name}${unitLabel} · ${totalCount}개`; };
+  recSection.appendChild(secHead);
+
+  if (totalCount === 0) {
+    secBody.appendChild(el(`<div style="font-size:13px;color:var(--text3);padding:8px 0">교재를 지정하면 관련 자료가 자동으로 표시됩니다</div>`));
+  } else {
+    // GitHub/RESOURCES 자료
+    if (matchedRes.length > 0) {
+      secBody.appendChild(el(`<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;margin-top:2px">수업 자료 라이브러리 (${matchedRes.length}개)</div>`));
+      matchedRes.forEach(r => {
+        const tags = resTagsOf(r.file);
+        const row = el(`<div class="rec-res-row"></div>`);
+        const left = el(`<div style="flex:1;min-width:0"></div>`);
+        left.appendChild(el(`<span class="rec-res-name">${r.name}</span>`));
+        if (tags.length) {
+          const tagWrap = el(`<div class="rec-res-tags" style="margin-top:3px"></div>`);
+          tags.forEach(t => tagWrap.appendChild(el(`<span class="rec-res-tag">${t}</span>`)));
+          left.appendChild(tagWrap);
+        }
+        row.appendChild(left);
+        row.appendChild(el(`<a href="${RES_BASE}${r.file}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;flex-shrink:0;font-size:12px;padding:4px 9px">열기 ↗</a>`));
+        secBody.appendChild(row);
+      });
+    }
+
+    // 노션 공통 문법 자료
+    secBody.appendChild(el(`<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;margin-top:${matchedRes.length>0?'12px':'2px'}">노션 문법 자료 (공통 · ${notionRes.length}개)</div>`));
+    notionRes.forEach(r => {
+      const row = el(`<div class="rec-res-row"></div>`);
+      const left = el(`<div style="flex:1;min-width:0"></div>`);
+      left.appendChild(el(`<span class="rec-res-name">${r.name}</span>`));
+      if (r.tags && r.tags.length) {
+        const tagWrap = el(`<div class="rec-res-tags" style="margin-top:3px"></div>`);
+        r.tags.forEach(t => tagWrap.appendChild(el(`<span class="rec-res-tag">${t}</span>`)));
+        tagWrap.appendChild(el(`<span class="notion-badge">Notion</span>`));
+        left.appendChild(tagWrap);
+      }
+      row.appendChild(left);
+      row.appendChild(el(`<a href="${r.url}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;flex-shrink:0;font-size:12px;padding:4px 9px">열기 ↗</a>`));
+      secBody.appendChild(row);
+    });
+
+    // 외부 웹 도구 (밸런스 게임 등)
+    secBody.appendChild(el(`<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:6px;margin-top:12px">웹 도구 · 활동 앱 (공통 · ${extTools.length}개)</div>`));
+    extTools.forEach(r => {
+      const row = el(`<div class="rec-res-row"></div>`);
+      const left = el(`<div style="flex:1;min-width:0"></div>`);
+      left.appendChild(el(`<span class="rec-res-name">${r.name}</span>`));
+      const tagWrap = el(`<div class="rec-res-tags" style="margin-top:3px"></div>`);
+      if (r.tags) r.tags.forEach(t => tagWrap.appendChild(el(`<span class="rec-res-tag">${t}</span>`)));
+      if (r.desc) tagWrap.appendChild(el(`<span style="font-size:10px;color:var(--text3);margin-left:2px">${r.desc}</span>`));
+      left.appendChild(tagWrap);
+      row.appendChild(left);
+      row.appendChild(el(`<a href="${r.url}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;flex-shrink:0;font-size:12px;padding:4px 9px">열기 ↗</a>`));
+      secBody.appendChild(row);
+    });
+  }
+
+  recSection.appendChild(secBody);
+  body.appendChild(recSection);
+  // ── 추천 자료 섹션 끝 ────────────────────────────────────────────────────────
+
+  // 수업 기록 세그먼트
   const seg = el(`<div class="seg" style="margin-bottom:14px"><button class="${state.detailMode==='all'?'on':''}" data-m="all">전체 기록</button><button class="${state.detailMode==='hard'?'on':''}" data-m="hard">어려워한 점만</button></div>`);
   seg.querySelectorAll("button").forEach(b => b.onclick = () => { state.detailMode = b.dataset.m; render(); });
   body.appendChild(seg);
@@ -386,6 +694,7 @@ function renderStudentDetail() {
   return card;
 }
 
+// ─── 복습 모아보기 ────────────────────────────────────────────────────────────
 function renderReview() {
   const card = el(`<div class="card"></div>`);
   const filter = el(`<div class="filterbar"><span style="font-size:12px;font-weight:600;color:var(--text2)">태그 필터:</span></div>`);
@@ -411,11 +720,95 @@ function renderReview() {
   return card;
 }
 
-function openNew(date) { state.panel = { type: "new", date }; render(); }
-function openLesson(l) { state.panel = { type: "lesson", id: l.id }; render(); }
-function closePanel() { state.panel = null; render(); }
+// ─── 자료 라이브러리 ──────────────────────────────────────────────────────────
+function renderLibrary() {
+  const card = el(`<div class="card"></div>`);
 
+  const filter = el(`<div class="filterbar"><span style="font-size:12px;font-weight:600;color:var(--text2)">태그 필터:</span></div>`);
+  const allBtn = el(`<button class="tagbtn ${state.resFilter===null?'on':''}">전체</button>`);
+  allBtn.onclick = () => { state.resFilter = null; render(); };
+  filter.appendChild(allBtn);
+  RES_TAGS.forEach(t => {
+    const tb = el(`<button class="tagbtn ${state.resFilter===t?'on':''}">${t}</button>`);
+    tb.onclick = () => { state.resFilter = t; render(); };
+    filter.appendChild(tb);
+  });
+  card.appendChild(filter);
+
+  const body = el(`<div style="padding:12px 16px"></div>`);
+
+  if (state.resources === null) {
+    body.appendChild(el(`<div class="hint">자료 목록을 불러오는 중입니다…</div>`));
+    card.appendChild(body);
+    return card;
+  }
+
+  const baseList = Array.isArray(state.resources) ? state.resources : RESOURCES.slice();
+  const isFallback = state.resources === false;
+  if (isFallback) {
+    body.appendChild(el(`<div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--bg3);border-radius:var(--radius)">⚠️ GitHub 연결 실패 — 저장된 목록을 표시합니다. <button id="res-retry" class="btn" style="padding:2px 8px;font-size:11px">다시 시도</button></div>`));
+    body.querySelector('#res-retry').onclick = () => { state.resources = null; render(); loadResourcesFromGitHub(); };
+  }
+
+  let list = baseList.slice();
+  if (state.resFilter) list = list.filter(r => resTagsOf(r.file).includes(state.resFilter));
+
+  const srcLabel = isFallback ? ' (저장된 목록)' : ' (GitHub 연동)';
+  body.appendChild(el(`<div style="font-size:13px;color:var(--text2);margin-bottom:12px">${state.resFilter?`"${state.resFilter}" `:""}자료 ${list.length}개${srcLabel}</div>`));
+
+  list.forEach(r => {
+    const tags = resTagsOf(r.file);
+    const row = el(`<div class="rec" style="border-left-color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:10px"></div>`);
+    const left = el(`<div style="min-width:0;flex:1"></div>`);
+    left.appendChild(el(`<div style="font-weight:500;margin-bottom:5px">${r.name}</div>`));
+    const tagWrap = el(`<div class="tag-row"></div>`);
+    RES_TAGS.forEach(t => {
+      const on = tags.includes(t);
+      const tb = el(`<button class="tagbtn ${on?'on':''}" style="padding:2px 9px;font-size:11px">${t}</button>`);
+      tb.onclick = () => {
+        let cur = resTagsOf(r.file).slice();
+        if (cur.includes(t)) cur = cur.filter(x=>x!==t); else cur.push(t);
+        state.resTags[r.file] = cur; saveResTags(); render();
+      };
+      tagWrap.appendChild(tb);
+    });
+    left.appendChild(tagWrap);
+    row.appendChild(left);
+    row.appendChild(el(`<a href="${RES_BASE}${r.file}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;flex-shrink:0">열기 ↗</a>`));
+    body.appendChild(row);
+  });
+
+  // 외부 웹 도구 (밸런스 게임 등) — 태그 필터가 '게임' 이거나 전체일 때 표시
+  const extFiltered = state.resFilter
+    ? EXTERNAL_TOOLS.filter(r => r.tags.includes(state.resFilter))
+    : EXTERNAL_TOOLS;
+  if (extFiltered.length > 0) {
+    body.appendChild(el(`<div style="font-size:12px;font-weight:600;color:var(--text2);margin:16px 0 8px">웹 도구 · 활동 앱 (${extFiltered.length}개)</div>`));
+    extFiltered.forEach(r => {
+      const row = el(`<div class="rec" style="border-left-color:#f0a030;display:flex;justify-content:space-between;align-items:center;gap:10px"></div>`);
+      const left = el(`<div style="min-width:0;flex:1"></div>`);
+      left.appendChild(el(`<div style="font-weight:500;margin-bottom:4px">${r.name}</div>`));
+      const tagWrap = el(`<div class="tag-row"></div>`);
+      r.tags.forEach(t => tagWrap.appendChild(el(`<span class="tag-static">${t}</span>`)));
+      if (r.desc) tagWrap.appendChild(el(`<span style="font-size:11px;color:var(--text3)">${r.desc}</span>`));
+      left.appendChild(tagWrap);
+      row.appendChild(left);
+      row.appendChild(el(`<a href="${r.url}" target="_blank" rel="noopener" class="btn" style="text-decoration:none;flex-shrink:0">열기 ↗</a>`));
+      body.appendChild(row);
+    });
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+function openNew(date)  { state.panel = { type: "new", date }; render(); }
+function openLesson(l)  { state.panel = { type: "lesson", id: l.id }; render(); }
+function closePanel()   { state.panel = null; render(); }
+
+// 앱 초기화
 render();
+loadResourcesFromGitHub();
 </script>
 </body>
 </html>
